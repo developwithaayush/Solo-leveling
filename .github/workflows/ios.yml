@@ -25,7 +25,9 @@ jobs:
       - name: Create native iOS project
         run: |
           npm install --no-save @capacitor/core@7 @capacitor/cli@7 @capacitor/ios@7
-          npx cap add ios --packagemanager SPM
+          # Capacitor CLI 7.6.9 lowercases the SPM flag and wrongly runs CocoaPods after creating the
+          # project. Once ios/App/CapApp-SPM exists, sync detects SPM itself and finishes the setup.
+          npx cap add ios --packagemanager SPM || npx cap sync ios
 
       - name: App icon + white status bar text
         run: |
