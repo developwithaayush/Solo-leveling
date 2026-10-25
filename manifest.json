@@ -1,0 +1,10 @@
+{
+  "name": "The System",
+  "short_name": "System",
+  "description": "Level up your life, Solo Leveling style.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#05070c",
+  "theme_color": "#05070c",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
