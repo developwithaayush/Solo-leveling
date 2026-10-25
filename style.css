@@ -143,6 +143,7 @@ input, select {
   border: 1px solid var(--line);
   border-radius: 3px;
   padding: 10px 12px;
+  font-size: 16px; /* below 16px iOS zooms the page on focus */
 }
 label { display: grid; gap: 6px; font: 11px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 label small { text-transform: none; letter-spacing: 0; font-size: 11px; }

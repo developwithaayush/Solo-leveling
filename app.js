@@ -279,9 +279,13 @@ const dialogs = {
 /* ---------- Backup ---------- */
 
 function exportData() {
+  const file = new File([JSON.stringify(s, null, 2)], `system-backup-${L.localDate()}.json`, { type: 'application/json' });
+  // Phones (and the iOS app, where downloads don't exist): share sheet → Save to Files.
+  if (matchMedia('(pointer: coarse)').matches && navigator.canShare?.({ files: [file] }))
+    return navigator.share({ files: [file] }).catch(() => {});
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(s, null, 2)], { type: 'application/json' }));
-  a.download = `system-backup-${L.localDate()}.json`;
+  a.href = URL.createObjectURL(file);
+  a.download = file.name;
   a.click();
   URL.revokeObjectURL(a.href);
 }

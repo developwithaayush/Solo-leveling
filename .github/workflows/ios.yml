@@ -1,0 +1,56 @@
+# Builds an unsigned iPhone app (.ipa) on GitHub's Mac runners.
+# Sideloadly signs it with your free Apple ID when you install it.
+name: iOS app
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  ipa:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Collect web files
+        run: |
+          mkdir www
+          cp index.html style.css app.js logic.js manifest.json icon.svg icon-180.png www/
+
+      - name: Create native iOS project
+        run: |
+          npm install --no-save @capacitor/core@7 @capacitor/cli@7 @capacitor/ios@7
+          npx cap add ios --packagemanager SPM
+
+      - name: App icon + white status bar text
+        run: |
+          for f in ios/App/App/Assets.xcassets/AppIcon.appiconset/*.png; do cp icon-1024.png "$f"; done
+          plist=ios/App/App/Info.plist
+          set_key() {
+            /usr/libexec/PlistBuddy -c "Delete :$1" "$plist" 2>/dev/null || true
+            /usr/libexec/PlistBuddy -c "Add :$1 $2 $3" "$plist"
+          }
+          set_key UIViewControllerBasedStatusBarAppearance bool false
+          set_key UIStatusBarStyle string UIStatusBarStyleLightContent
+
+      - name: Build
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+
+      - name: Package .ipa
+        run: |
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/App.app Payload/
+          zip -qr The-System.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: The-System-ipa
+          path: The-System.ipa
